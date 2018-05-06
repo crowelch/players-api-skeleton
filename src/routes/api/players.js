@@ -10,26 +10,44 @@ router.post('/', function(req, res, next) {
   passport.authenticate('jwt', {session: false}, function(err, user, info) {
     if(!user) {
       return res.status(403).send('not authenticated');
+    } else {
+      let userId = user._id;
+      validators.validatePlayer(req.body).then(() => {
+        //create player
+        let player = req.body;
+        player.created_by = userId;
+
+        return Player.create(req.body);
+      }).then(player => {
+        let body = {
+          success: true,
+          player: player
+        }
+
+        res.status(201).send(body);
+      }).catch(error => {
+        res.status(409).send(error);
+      });
     }
   })(req, res, next);
-
-  validators.validatePlayer(req.body).then(() => {
-    //create player
-    return Player.create(req.body);
-  }).then(player => {
-    let body = {
-      success: true,
-      player: player
-    }
-
-    res.status(201).send(body);
-  }).catch(error => {
-    res.status(409).send(error);
-  });
 });
 
-router.get('/', function(req, res) {
-    res.send('oh hi Mark');
+router.get('/', function(req, res, next) {
+  passport.authenticate('jwt', {session: false}, function(err, user, info) {
+    if(!user) {
+      return res.status(403).send('not authenticated');
+    } else {
+      let userId = user._id;
+      Player.find({created_by: userId}).then(players => {
+        let body = {
+          success: true,
+          players: players
+        }
+
+        res.status(200).send(body);
+      });
+    }
+  })(req, res, next);
 });
 
 
