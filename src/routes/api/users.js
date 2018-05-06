@@ -29,7 +29,7 @@ router.post('/', (req, res) => {
       // If user is created, return user object and jwt
       let body = {
         success: true,
-        token: jwt.sign({username: user.email}, secrets.jwtSecret),
+        token: jwt.sign({id: user._id}, secrets.jwtSecret),
         user: {
           id: user._id,
           email: user.email,
@@ -46,14 +46,10 @@ router.post('/', (req, res) => {
 
 // Update user
 router.put('/:userId', (req, res) => {
-  //TODO: encrypt password
-
   let userId = req.params.userId
   let body = req.body;
 
-  console.log(req.body);
-
-  // Esnure new data is valid.
+  // Ensure new data is valid.
   // This could be customized for update if it has different requirements
   validators.validateUser(body).then(() => {
     return User.findOne({_id: userId}).exec();
@@ -80,7 +76,7 @@ router.put('/:userId', (req, res) => {
       // If user is created, return user object and jwt
       let body = {
         success: true,
-        token: jwt.sign({username: user.email}, secrets.jwtSecret),
+        token: jwt.sign({id: user._id}, secrets.jwtSecret),
         user: {
           id: user._id,
           email: user.email,
