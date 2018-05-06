@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 
-const playerSchema = mongoose.Schema({
+let playerSchema = mongoose.Schema({
     "first_name": String,
     "last_name": String,
     "rating": Number,
@@ -10,5 +10,11 @@ const playerSchema = mongoose.Schema({
     },
     "created_by": String
 });
+
+playerSchema.virtual('id').get(function() {
+  return this._id;
+});
+
+playerSchema.set('toJSON', {virtuals: true, getters: true});
 
 module.exports = mongoose.model('Player', playerSchema);
