@@ -6,33 +6,29 @@ const secrets = require('../../secrets');
 const bcrypt = require('bcrypt');
 
 router.post('/login', (req, res) => {
-  let user = {};
-
   User.findOne({email: req.body.email}).exec().then(user => {
-    if(!user) {
+    // Check user is registered
+    if (!user) {
       throw 'invalid email';
     }
 
     return user;
   }).then(user => {
+    // Check if password is valid
     return bcrypt.compare(req.body.password, user.password).then(isPasswordValid => {
-      if(isPasswordValid) {
+      if (isPasswordValid) {
         return user;
-      } else {
-        throw 'invalid password';
       }
+      throw 'invalid password';
+
     });
   }).then(user => {
+    // Return user
     let body = {
       success: true,
       token: jwt.sign({username: user.email}, secrets.jwtSecret),
-      user: {
-        id: user._id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name
-      }
-    }
+      user: user
+    };
 
     res.status(200).send(body);
   }).catch(error => {
